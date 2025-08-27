@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search-bar'
 import { BusinessMap } from '@/components/business-map'
@@ -19,7 +19,7 @@ interface BusinessSearchResponse {
   }
 }
 
-export default function BusinessMapPage() {
+function BusinessMapContent() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -166,5 +166,13 @@ export default function BusinessMapPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function BusinessMapPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <BusinessMapContent />
+    </Suspense>
   )
 }

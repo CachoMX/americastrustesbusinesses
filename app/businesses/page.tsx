@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search-bar'
 import { BusinessCard } from '@/components/business-card'
@@ -20,7 +20,7 @@ interface BusinessSearchResponse {
   }
 }
 
-export default function BusinessesPage() {
+function BusinessesContent() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -198,5 +198,13 @@ export default function BusinessesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function BusinessesPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <BusinessesContent />
+    </Suspense>
   )
 }

@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation'
 import { Star, Phone, MapPin, Clock, Flag } from 'lucide-react'
 import { ReviewForm } from '@/components/review-form'
 import { ReviewsList } from '@/components/reviews-list'
-import { formatRating, formatPhone, formatDate } from '@/lib/utils'
+import { formatRating, formatPhone, formatDate, extractBusinessIdFromSlug } from '@/lib/utils'
+import { poolPromise, sql } from '@/lib/db'
 
 interface BusinessPageProps {
   params: { id: string }
@@ -10,15 +11,114 @@ interface BusinessPageProps {
 
 async function getBusinessData(id: string) {
   try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/businesses/${id}`, {
-      cache: 'no-store',
-    })
+    // Try to parse as direct ID first (for backward compatibility)
+    let businessId = parseInt(id)
     
-    if (!response.ok) {
-      return null
+    // If not a direct ID, try to extract from slug
+    if (isNaN(businessId)) {
+      businessId = extractBusinessIdFromSlug(id) || 0
+    } else {
+      // If parseInt worked on a slug like "1-forte-enterprises-401522", 
+      // we should still try slug parsing since it could be a slug that starts with a number
+      const slugId = extractBusinessIdFromSlug(id)
+      if (slugId && slugId !== businessId) {
+        businessId = slugId
+      }
     }
     
-    return await response.json()
+    if (!businessId) {
+      return null
+    }
+
+    const pool = await poolPromise
+
+    // Get business details
+    const businessQuery = `
+      SELECT 
+        b.IdBusiness,
+        b.BusinessName,
+        b.Phone,
+        b.Address,
+        b.Location,
+        b.Industry,
+        b.TimeZone,
+        b.IdStatus
+      FROM [benjaise_BCA].[dbo].[Businesses] b
+      WHERE b.IdBusiness = @businessId
+    `
+
+    const businessResult = await pool
+      .request()
+      .input('businessId', businessId)
+      .query(businessQuery)
+
+    if (businessResult.recordset.length === 0) {
+      return null
+    }
+
+    const business = businessResult.recordset[0]
+
+    // Get approved reviews for this business
+    const reviewsQuery = `
+      SELECT 
+        r.IdReview,
+        r.Rating,
+        r.ReviewText,
+        r.ReviewerName,
+        r.IsAnonymous,
+        r.CreatedAt,
+        CASE 
+          WHEN u.FirstName IS NOT NULL AND u.LastName IS NOT NULL THEN u.FirstName + ' ' + u.LastName
+          WHEN u.FirstName IS NOT NULL THEN u.FirstName
+          WHEN u.LastName IS NOT NULL THEN u.LastName
+          ELSE NULL
+        END as UserName
+      FROM Reviews r
+      LEFT JOIN [benjaise_sqluser].[UsersWebsite] u ON r.IdUser = u.IdUser
+      WHERE r.IdBusiness = @businessId AND r.IsApproved = 1
+      ORDER BY r.CreatedAt DESC
+    `
+
+    const reviewsResult = await pool
+      .request()
+      .input('businessId', businessId)
+      .query(reviewsQuery)
+
+    const reviews = reviewsResult.recordset.map((row: any) => ({
+      IdReview: row.IdReview,
+      IdBusiness: businessId,
+      Rating: row.Rating,
+      ReviewText: row.ReviewText,
+      ReviewerName: row.IsAnonymous === 1 
+        ? 'Anonymous' 
+        : (row.ReviewerName || row.UserName || 'Anonymous'),
+      IsApproved: true, // We only fetch approved reviews
+      IsAnonymous: row.IsAnonymous === 1,
+      CreatedAt: new Date(row.CreatedAt),
+      UpdatedAt: new Date(row.CreatedAt), // Use CreatedAt as fallback
+    }))
+
+    // Calculate average rating and count
+    let averageRating = 0
+    const reviewCount = reviews.length
+    if (reviewCount > 0) {
+      averageRating = reviews.reduce((sum: number, review: any) => sum + review.Rating, 0) / reviewCount
+    }
+
+    return {
+      business: {
+        IdBusiness: business.IdBusiness,
+        BusinessName: business.BusinessName,
+        Phone: business.Phone,
+        Address: business.Address,
+        Location: business.Location,
+        Industry: business.Industry,
+        TimeZone: business.TimeZone,
+        averageRating,
+        reviewCount,
+      },
+      reviews,
+    }
   } catch (error) {
     console.error('Error fetching business:', error)
     return null

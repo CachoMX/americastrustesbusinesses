@@ -86,7 +86,7 @@ export async function GET(
       .input('businessId', businessId)
       .query(reviewsQuery)
 
-    const reviews = reviewsResult.recordset.map(row => ({
+    const reviews = reviewsResult.recordset.map((row: any) => ({
       IdReview: row.IdReview,
       Rating: row.Rating,
       ReviewText: row.ReviewText,
@@ -100,7 +100,7 @@ export async function GET(
     let averageRating = 0
     const reviewCount = reviews.length
     if (reviewCount > 0) {
-      averageRating = reviews.reduce((sum, review) => sum + review.Rating, 0) / reviewCount
+      averageRating = reviews.reduce((sum: number, review: any) => sum + review.Rating, 0) / reviewCount
     }
 
     return NextResponse.json({

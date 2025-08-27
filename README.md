@@ -107,6 +107,9 @@ A comprehensive Next.js web application for discovering and managing trusted bus
 
    # Google Maps (Optional)
    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key
+
+   # Admin Configuration
+   ADMIN_EMAIL=admin@yourdomain.com
    ```
 
 5. **Start Development Server**
@@ -208,16 +211,55 @@ The admin panel provides comprehensive management tools:
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
-```bash
-npm run build
-vercel --prod
-```
+
+1. **Install Vercel CLI**
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Login to Vercel**
+   ```bash
+   vercel login
+   ```
+
+3. **Set Environment Variables in Vercel**
+   
+   You need to add these environment variables in your Vercel dashboard:
+   ```bash
+   # Database Configuration
+   DB_SERVER=your_sql_server_host
+   DB_NAME=your_database_name  
+   DB_USER=your_database_user
+   DB_PASSWORD=your_database_password
+   DB_PORT=1433
+
+   # NextAuth Configuration
+   NEXTAUTH_URL=https://your-app.vercel.app
+   NEXTAUTH_SECRET=your_secure_secret_key
+
+   # Optional
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key
+   ADMIN_EMAIL=admin@yourdomain.com
+   ```
+
+4. **Deploy**
+   ```bash
+   vercel --prod
+   ```
 
 ### Manual Deployment
 ```bash
 npm run build
 npm start
 ```
+
+### Environment Variables Setup
+
+For production deployment, ensure all environment variables are properly configured:
+
+- **Database**: Use your production SQL Server credentials
+- **NextAuth**: Generate a secure secret with `openssl rand -base64 32`
+- **URL**: Set `NEXTAUTH_URL` to your production domain
 
 ## 🤝 Contributing
 

@@ -1,10 +1,11 @@
 import sql from 'mssql'
 
+// Database configuration using environment variables
 const config: sql.config = {
-  server: '192.185.7.4',
-  database: 'benjaise_BCA',
-  user: 'benjaise_sqluser',
-  password: 'Aragon21!',
+  server: process.env.DB_SERVER || '192.185.7.4',
+  database: process.env.DB_NAME || 'benjaise_BCA',
+  user: process.env.DB_USER || 'benjaise_sqluser',
+  password: process.env.DB_PASSWORD || 'Aragon21!',
   options: {
     encrypt: true,
     trustServerCertificate: true,
@@ -17,7 +18,7 @@ const config: sql.config = {
   },
   requestTimeout: 60000,
   connectionTimeout: 60000,
-  port: 1433,
+  port: parseInt(process.env.DB_PORT || '1433'),
 }
 
 let poolPromise: Promise<sql.ConnectionPool>

@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       const existingReview = await pool
         .request()
         .input('businessId', businessIdNum)
-        .input('userId', parseInt(session.user.id))
+        .input('userId', parseInt((session.user as any)?.id || '0'))
         .query('SELECT IdReview FROM Reviews WHERE IdBusiness = @businessId AND IdUser = @userId')
 
       if (existingReview.recordset.length > 0) {
@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
       .input('userId', userId)
       .input('rating', rating)
       .input('reviewText', reviewText)
-      .input('reviewerName', isAnonymous ? reviewerName : (session ? session.user.name || session.user.email : null))
-      .input('reviewerEmail', isAnonymous ? reviewerEmail : (session ? session.user.email : null))
+      .input('reviewerName', isAnonymous ? reviewerName : (session ? session.user?.name || session.user?.email : null))
+      .input('reviewerEmail', isAnonymous ? reviewerEmail : (session ? session.user?.email : null))
       .input('isAnonymous', isAnonymous)
       .input('isApproved', isApproved) // NULL = pending, 0 = rejected, 1 = approved (auto-approve for admins)
       .query(`

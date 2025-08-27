@@ -37,9 +37,9 @@ const initializePool = () => {
   })
 }
 
-if (!global.poolPromise) {
-  global.poolPromise = initializePool()
+if (!(global as any).poolPromise) {
+  (global as any).poolPromise = initializePool()
 }
-poolPromise = global.poolPromise
+poolPromise = (global as any).poolPromise
 
 export { sql, poolPromise }

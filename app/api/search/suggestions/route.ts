@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
             ORDER BY BusinessName
           `)
         
-        suggestions = businessResult.recordset.map(row => ({
+        suggestions = businessResult.recordset.map((row: any) => ({
           type: 'business',
           label: row.BusinessName,
           sublabel: row.Location || row.Address,
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
             ORDER BY Location
           `)
         
-        suggestions = locationResult.recordset.map(row => ({
+        suggestions = locationResult.recordset.map((row: any) => ({
           type: 'location',
           label: row.Location,
           value: row.Location,
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
             ORDER BY BusinessCount DESC, Industry
           `)
         
-        suggestions = industryResult.recordset.map(row => ({
+        suggestions = industryResult.recordset.map((row: any) => ({
           type: 'industry',
           label: row.Industry,
           sublabel: `${row.BusinessCount} businesses`,
@@ -106,18 +106,18 @@ export async function GET(request: NextRequest) {
         ])
 
         suggestions = [
-          ...businessResults.recordset.map(row => ({
+          ...businessResults.recordset.map((row: any) => ({
             type: 'business',
             label: row.BusinessName,
             sublabel: row.Location || row.Address,
             value: row.BusinessName,
           })),
-          ...locationResults.recordset.map(row => ({
+          ...locationResults.recordset.map((row: any) => ({
             type: 'location',
             label: row.Location,
             value: row.Location,
           })),
-          ...industryResults.recordset.map(row => ({
+          ...industryResults.recordset.map((row: any) => ({
             type: 'industry',
             label: row.Industry,
             sublabel: `${row.BusinessCount} businesses`,

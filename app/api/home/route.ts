@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         WHERE Location IS NOT NULL AND Location != ''
       `)
 
-    const topCategories = categoriesResult.recordset.map(row => ({
+    const topCategories = categoriesResult.recordset.map((row: any) => ({
       name: row.Industry,
       count: row.BusinessCount,
     }))

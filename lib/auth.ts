@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub!
+        (session.user as any).id = token.sub!
         ;(session.user as any).isAdmin = token.isAdmin
       }
       return session
@@ -65,7 +65,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
   },
   session: {
     strategy: 'jwt',

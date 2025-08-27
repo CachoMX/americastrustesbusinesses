@@ -13,10 +13,10 @@ interface BusinessMapProps {
 
 export function BusinessMap({ businesses, center, zoom = 10 }: BusinessMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const [map, setMap] = useState<google.maps.Map | null>(null)
+  const [map, setMap] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const markersRef = useRef<google.maps.Marker[]>([])
+  const markersRef = useRef<any[]>([])
 
   useEffect(() => {
     initializeMap()
@@ -50,7 +50,7 @@ export function BusinessMap({ businesses, center, zoom = 10 }: BusinessMapProps)
 
       const defaultCenter = center || { lat: 39.8283, lng: -98.5795 } // Center of USA
       
-      const mapInstance = new google.maps.Map(mapRef.current, {
+      const mapInstance = new (window as any).google.maps.Map(mapRef.current, {
         center: defaultCenter,
         zoom,
         styles: [
@@ -78,20 +78,20 @@ export function BusinessMap({ businesses, center, zoom = 10 }: BusinessMapProps)
     markersRef.current = []
 
     // Create bounds to fit all markers
-    const bounds = new google.maps.LatLngBounds()
+    const bounds = new (window as any).google.maps.LatLngBounds()
     let hasValidLocations = false
 
     // Add markers for businesses with addresses
     for (const business of businesses) {
       if (business.Address) {
         try {
-          const geocoder = new google.maps.Geocoder()
+          const geocoder = new (window as any).google.maps.Geocoder()
           const result = await geocoder.geocode({ address: business.Address })
           
           if (result.results[0]) {
             const position = result.results[0].geometry.location
             
-            const marker = new google.maps.Marker({
+            const marker = new (window as any).google.maps.Marker({
               position,
               map,
               title: business.BusinessName,
@@ -102,12 +102,12 @@ export function BusinessMap({ businesses, center, zoom = 10 }: BusinessMapProps)
                     <text x="16" y="20" font-family="Arial" font-size="16" fill="white" text-anchor="middle">★</text>
                   </svg>
                 `),
-                scaledSize: new google.maps.Size(32, 32)
+                scaledSize: new (window as any).google.maps.Size(32, 32)
               }
             })
 
             // Create info window
-            const infoWindow = new google.maps.InfoWindow({
+            const infoWindow = new (window as any).google.maps.InfoWindow({
               content: `
                 <div class="p-3 max-w-xs">
                   <h3 class="font-semibold text-gray-900 mb-2">${business.BusinessName}</h3>

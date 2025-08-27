@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       .input('limit', limit)
       .query(query)
 
-    const users = result.recordset.map(row => ({
+    const users = result.recordset.map((row: any) => ({
       IdUser: row.IdUser,
       Name: row.FirstName && row.LastName ? `${row.FirstName} ${row.LastName}` : (row.FirstName || row.LastName || 'Unknown'),
       Email: row.Email,

@@ -23,15 +23,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prevent admin from removing their own admin status
-    if (action === 'remove_admin' && session.user?.id && parseInt(userId) === parseInt(session.user.id)) {
-      return NextResponse.json(
-        { error: 'You cannot remove admin access from your own account' },
-        { status: 400 }
-      )
-    }
-
     const pool = await poolPromise
+
+    // Get current user's ID from database to prevent self-removal
+    if (action === 'remove_admin') {
+      const currentUserResult = await pool
+        .request()
+        .input('email', session.user?.email)
+        .query('SELECT IdUser FROM [benjaise_sqluser].[UsersWebsite] WHERE Email = @email')
+        
+      if (currentUserResult.recordset.length > 0 && 
+          parseInt(userId) === currentUserResult.recordset[0].IdUser) {
+        return NextResponse.json(
+          { error: 'You cannot remove admin access from your own account' },
+          { status: 400 }
+        )
+      }
+    }
 
     switch (action) {
       case 'make_admin':

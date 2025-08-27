@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { poolPromise, sql } from '@/lib/db'
 import { createBusinessSlug } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

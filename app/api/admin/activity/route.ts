@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { poolPromise, sql } from '@/lib/db'
 import { authOptions } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 interface ReviewRecord {
   IdReview: number
   Rating: number

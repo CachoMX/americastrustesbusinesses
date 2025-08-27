@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         ORDER BY NEWID()
       `)
 
-    console.log('Sample locations:', locationSampleResult.recordset.map(r => r.Location))
+    console.log('Sample locations:', locationSampleResult.recordset.map((r: any) => r.Location))
 
     // Get top locations with improved parsing
     const locationsResult = await pool
@@ -163,19 +163,19 @@ export async function GET(request: NextRequest) {
       newReviews: [10, 15, 8, 20, 25, 12, 30],
     }
 
-    const topIndustries = industriesResult.recordset.map((row, index) => ({
+    const topIndustries = industriesResult.recordset.map((row: any, index: number) => ({
       name: row.Industry,
       count: row.BusinessCount,
       growth: [5, 8, 12, 7, 15][index] || 0, // Mock growth data
     }))
 
-    const topLocations = locationsResult.recordset.map((row, index) => ({
+    const topLocations = locationsResult.recordset.map((row: any, index: number) => ({
       name: row.State,
       count: row.BusinessCount,
       growth: [3, 7, 5, 9, 4][index] || 0, // Mock growth data
     }))
 
-    const recentActivity = activityResult.recordset.map(row => {
+    const recentActivity = activityResult.recordset.map((row: any) => {
       const hoursAgo = row.HoursAgo || 0
       const daysAgo = Math.floor(hoursAgo / 24)
       

@@ -3,6 +3,16 @@ import { getServerSession } from 'next-auth'
 import { poolPromise, sql } from '@/lib/db'
 import { authOptions } from '@/lib/auth'
 
+interface ReviewRecord {
+  IdReview: number
+  Rating: number
+  ReviewText: string
+  CreatedAt: string
+  BusinessName: string
+  ReviewerName: string
+  IsApproved: number
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -33,7 +43,7 @@ export async function GET(request: NextRequest) {
         ORDER BY r.CreatedAt DESC
       `)
 
-    const activities = recentReviewsResult.recordset.map(review => {
+    const activities = recentReviewsResult.recordset.map((review: ReviewRecord) => {
       const timeDiff = new Date().getTime() - new Date(review.CreatedAt).getTime()
       const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60))
       const daysAgo = Math.floor(hoursAgo / 24)

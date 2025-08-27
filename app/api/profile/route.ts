@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { authOptions } from '@/lib/auth'
+import { poolPromise, sql } from '@/lib/db'
 
 export async function PUT(request: NextRequest) {
   try {
@@ -26,13 +24,16 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    const pool = await poolPromise
+
     // Check if the new email is already taken by another user
     if (email !== session.user.email) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email }
-      })
+      const existingUser = await pool
+        .request()
+        .input('email', email)
+        .query('SELECT Email FROM [benjaise_sqluser].[UsersWebsite] WHERE Email = @email')
 
-      if (existingUser) {
+      if (existingUser.recordset.length > 0) {
         return NextResponse.json(
           { error: 'Email is already taken' },
           { status: 400 }
@@ -41,20 +42,22 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update the user
-    const updatedUser = await prisma.user.update({
-      where: { email: session.user.email },
-      data: {
-        name,
-        email
-      }
-    })
+    const updateResult = await pool
+      .request()
+      .input('name', name)
+      .input('email', email)
+      .input('currentEmail', session.user.email)
+      .query(`
+        UPDATE [benjaise_sqluser].[UsersWebsite] 
+        SET Name = @name, Email = @email, UpdatedAt = GETDATE()
+        WHERE Email = @currentEmail
+      `)
 
     return NextResponse.json({
       message: 'Profile updated successfully',
       user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email
+        name,
+        email
       }
     })
 
@@ -64,7 +67,5 @@ export async function PUT(request: NextRequest) {
       { error: 'Internal server error' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

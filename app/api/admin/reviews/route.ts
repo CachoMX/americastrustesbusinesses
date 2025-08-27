@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       .input('limit', limit)
       .query(query)
 
-    const reviews = result.recordset.map(row => ({
+    const reviews = result.recordset.map((row: any) => ({
       IdReview: row.IdReview,
       Rating: row.Rating,
       ReviewText: row.ReviewText,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import bcrypt from 'bcryptjs'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 import { poolPromise, sql } from '@/lib/db'
 
 export async function PUT(request: NextRequest) {

@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     })
     const result = await queryRequest.query(businessQuery)
     
-    const businesses = result.recordset.map(row => ({
+    const businesses = result.recordset.map((row: any) => ({
       IdBusiness: row.IdBusiness,
       BusinessName: row.BusinessName,
       Phone: row.Phone,

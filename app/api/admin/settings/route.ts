@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         .query('SELECT SettingKey, SettingValue FROM AdminSettings')
       
       // Convert database rows to settings object
-      result.recordset.forEach(row => {
+      result.recordset.forEach((row: any) => {
         const key = row.SettingKey
         let value = row.SettingValue
         

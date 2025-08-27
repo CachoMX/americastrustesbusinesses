@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Prevent admin from removing their own admin status
-    if (action === 'remove_admin' && parseInt(userId) === parseInt(session.user.id)) {
+    if (action === 'remove_admin' && session.user?.id && parseInt(userId) === parseInt(session.user.id)) {
       return NextResponse.json(
         { error: 'You cannot remove admin access from your own account' },
         { status: 400 }
